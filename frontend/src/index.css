@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* Design Tokens - Black & White Theme */
+@theme {
+  /* Colors  */
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(0% 0 0);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(0% 0 0);
+  --color-muted: oklch(96% 0 0);
+  --color-muted-foreground: oklch(45% 0 0);
+  --color-border: oklch(90% 0 0);
+  --color-input: oklch(95% 0 0);
+  --color-input-background: oklch(98% 0 0);
+  --color-primary: oklch(0% 0 0);
+  --color-primary-foreground: oklch(100% 0 0);
+  --color-ring: oklch(0% 0 0);
+  --color-destructive: oklch(50% 0.2 0);
+  --color-destructive-foreground: oklch(100% 0 0);
+
+  /* Radius */
+  --radius: 0.5rem;
+
+  /* Font Families */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Spacing */
+  --spacing: 0.25rem;
+
+  /* Container Sizes */
+  --container-4xl: 56rem;
+  --container-7xl: 80rem;
+
+  /* Text Sizes */
+  --text-sm: 0.875rem;
+  --text-sm--line-height: calc(1.25 / 0.875);
+  --text-base: 1rem;
+  --text-base--line-height: calc(1.5 / 1);
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: calc(2.5 / 2.25);
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+
+  /* Border Radius */
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  /* Transitions */
+  --default-transition-duration: 0.15s;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);  
+}
+
+/* Dark Mode */
+.dark {
+  --color-background: oklch(0% 0 0);
+  --color-foreground: oklch(100% 0 0);
+  --color-card: oklch(10% 0 0);
+  --color-card-foreground: oklch(100% 0 0);
+  --color-muted: oklch(15% 0 0);
+  --color-muted-foreground: oklch(65% 0 0);
+  --color-border: oklch(20% 0 0);
+  --color-input: oklch(15% 0 0);
+  --color-input-background: oklch(8% 0 0);
+  --color-primary: oklch(100% 0 0);
+  --color-primary-foreground: oklch(0% 0 0);
+  --color-ring: oklch(100% 0 0);
+}
+
+/* Base Styles */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography Defaults (when no text- class is applied) */
+:where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+:where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+:where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+:where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h4,
+:where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) label,
+:where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) button {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+:where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) input {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+}
+
+/* Scrollbar Styling (Dark/Light Mode) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
+}
