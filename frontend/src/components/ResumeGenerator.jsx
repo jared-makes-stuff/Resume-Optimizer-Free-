@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
@@ -11,26 +11,33 @@ export function ResumeGenerator({ data, onResumeGenerate }) {
   const [latexResume, setLatexResume] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const generateLatexResume = () => {
+  const generateLatexResume = useCallback(({ notify = false } = {}) => {
     setIsGenerating(true);
 
-    // Simulate generation delay
-    setTimeout(() => {
+    try {
       const latex = generateLatex(data);
       setLatexResume(latex);
       onResumeGenerate(latex);
+      if (notify) toast.success('LaTeX resume generated!');
+    } catch (error) {
+      console.error('Error generating LaTeX resume:', error);
+      toast.error('Unable to generate the LaTeX resume.');
+    } finally {
       setIsGenerating(false);
-      toast.success('LaTeX resume generated!');
-    }, 1000);
-  };
+    }
+  }, [data, onResumeGenerate]);
 
   useEffect(() => {
     generateLatexResume();
-  }, [data]);
+  }, [generateLatexResume]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(latexResume);
-    toast.success('LaTeX code copied to clipboard!');
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(latexResume);
+      toast.success('LaTeX code copied to clipboard!');
+    } catch {
+      toast.error('Unable to copy LaTeX code.');
+    }
   };
 
   return (
@@ -48,7 +55,7 @@ export function ResumeGenerator({ data, onResumeGenerate }) {
         </div>
         <div className="flex gap-2">
           <Button
-            onClick={generateLatexResume}
+            onClick={() => generateLatexResume({ notify: true })}
             disabled={isGenerating}
             className="rounded-xl"
           >
@@ -100,7 +107,7 @@ export function ResumeGenerator({ data, onResumeGenerate }) {
             <h4 className="font-medium">How to Use Your LaTeX Resume</h4>
             <ul className="space-y-2 text-sm text-muted-foreground list-disc list-inside">
               <li>Copy the LaTeX code above</li>
-              <li>Paste it into <a href="https://www.overleaf.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Overleaf</a> (free online LaTeX editor)</li>
+              <li>Paste it into <a href="https://www.overleaf.com/" target="_blank" rel="noopener noreferrer" className="text-foreground underline-offset-4 hover:underline">Overleaf</a> (free online LaTeX editor)</li>
               <li>Compile to see your formatted resume</li>
               <li>Edit the content directly or use the Job Matcher tab to optimize it for specific positions</li>
               <li>Download as PDF when ready</li>

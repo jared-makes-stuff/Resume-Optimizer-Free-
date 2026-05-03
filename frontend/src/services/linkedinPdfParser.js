@@ -1,13 +1,26 @@
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
 /**
  * LinkedIn PDF Parser Service
  * Parses LinkedIn profile PDF exports client-side
  */
 
-import * as pdfjsLib from 'pdfjs-dist';
-// Let Vite and pdfjs automatically handle the worker path in the modern build
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-
 class LinkedInPdfParser {
+  constructor() {
+    this.pdfjsLibPromise = null;
+  }
+
+  async loadPdfJs() {
+    if (!this.pdfjsLibPromise) {
+      this.pdfjsLibPromise = import('pdfjs-dist').then(pdfjsLib => {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+        return pdfjsLib;
+      });
+    }
+
+    return this.pdfjsLibPromise;
+  }
+
   /**
    * Parse LinkedIn profile PDF
    * @param {File} file - The PDF file from LinkedIn
@@ -15,6 +28,7 @@ class LinkedInPdfParser {
    */
   async parsePdf(file) {
     try {
+      const pdfjsLib = await this.loadPdfJs();
       const arrayBuffer = await file.arrayBuffer();
       const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
       const pdf = await loadingTask.promise;
@@ -157,10 +171,11 @@ class LinkedInPdfParser {
         data.education = this.parseEducation(buffer);
         break;
 
-      case 'skills':
+      case 'skills': {
         const newSkills = this.parseSkills(buffer);
         data.skills = [...data.skills, ...newSkills];
         break;
+      }
 
       case 'certifications':
         data.certifications = this.parseCertifications(buffer);
@@ -298,7 +313,7 @@ class LinkedInPdfParser {
         if (emailMatch) data.profile.email = emailMatch[0];
       } else if (line.includes('www.linkedin.com') || line.includes('http')) {
         data.profile.url = line.split(' ')[0];
-      } else if (line.match(/[\d\-\(\)\s]{10,}/) && line.length < 30) {
+      } else if (line.match(/[\d()\s-]{10,}/) && line.length < 30) {
         data.profile.phone = line;
       } else {
         this.parseHeader([line], data);
@@ -439,12 +454,6 @@ class LinkedInPdfParser {
   parseEducation(lines) {
     const education = [];
 
-    // Robust date regex (matches "Aug 2024 - Dec 2027" or "2019 - 2022")
-    const month = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*';
-    const year = '\\d{4}';
-    const dateRegex = new RegExp(`^(${month}\\s+${year}|${year})\\s*-\\s*(Present|${month}\\s+${year}|${year})`, 'i');
-
-    let currentEdu = null;
     let buffer = []; // Potential School/Degree lines
 
     for (let i = 0; i < lines.length; i++) {
@@ -465,7 +474,7 @@ class LinkedInPdfParser {
         }
 
         // Clean date
-        let dates = line.replace(/[()·]/g, '').trim();
+        let dates = line.replace(/[().\u00b7\u2022]/g, '').trim();
         const startYear = dates.split('-')[0]?.trim();
         const endYear = dates.split('-')[1]?.trim();
 
@@ -499,7 +508,7 @@ class LinkedInPdfParser {
       if (line.length < 2) return;
 
       // Split by bullets or commas
-      const parts = line.split(/[,•·]/);
+      const parts = line.split(/[,\u2022\u00b7]/);
       parts.forEach(p => {
         const clean = p.trim();
         if (clean.length > 1 && clean.length < 100) {
@@ -562,7 +571,33 @@ class LinkedInPdfParser {
   }
 
   parseProjects(lines) {
-    return [];
+    const projects = [];
+    let currentProject = null;
+
+    lines.forEach(line => {
+      if (line.includes('Page') && line.includes('of')) return;
+
+      const isDateLine = /\d{4}/.test(line) || /^Present$/i.test(line);
+      if (!currentProject) {
+        if (isDateLine) return;
+        currentProject = {
+          name: line,
+          technologies: '',
+          date: '',
+          details: []
+        };
+        return;
+      }
+
+      if (isDateLine && !currentProject.date) {
+        currentProject.date = line;
+      } else {
+        currentProject.details.push(line);
+      }
+    });
+
+    if (currentProject) projects.push(currentProject);
+    return projects.filter(project => project.name);
   }
 }
 

@@ -1,11 +1,34 @@
 // Helper function to escape special LaTeX characters
+const stripControlCharacters = (value) => String(value)
+    .split('')
+    .filter(char => {
+        const code = char.charCodeAt(0);
+        return code === 9 || code === 10 || code === 13 || code >= 32;
+    })
+    .join('');
+
 const escapeLatex = (str) => {
     if (!str) return '';
-    return String(str)
+    return stripControlCharacters(str)
         .replace(/\\/g, '\\textbackslash{}')
         .replace(/([&%$#_{}])/g, '\\$1')
         .replace(/~/g, '\\textasciitilde{}')
         .replace(/\^/g, '\\textasciicircum{}');
+};
+
+const sanitizeHref = (str) => stripControlCharacters(str ?? '').trim().replace(/[{}\\]/g, '');
+
+const normalizeUrl = (url) => {
+    const value = String(url ?? '').trim();
+    if (!value) return '';
+
+    try {
+        const candidate = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+        const parsed = new URL(candidate);
+        return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '';
+    } catch {
+        return '';
+    }
 };
 
 export const generateLatex = (data) => {
@@ -19,10 +42,15 @@ export const generateLatex = (data) => {
     // Construct Header dynamically to avoid empty delimiters or broken hrefs
     const headerParts = [];
     if (profile.phone) headerParts.push(escapeLatex(profile.phone));
-    if (profile.email) headerParts.push(`\\href{mailto:${escapeLatex(profile.email)}}{\\underline{${escapeLatex(profile.email)}}}`);
-    if (profile.url) {
-        const displayUrl = profile.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
-        headerParts.push(`\\href{${escapeLatex(profile.url)}}{\\underline{${escapeLatex(displayUrl)}}}`);
+    if (profile.email) {
+        const email = sanitizeHref(profile.email);
+        headerParts.push(`\\href{mailto:${email}}{\\underline{${escapeLatex(profile.email)}}}`);
+    }
+
+    const profileUrl = normalizeUrl(profile.url);
+    if (profileUrl) {
+        const displayUrl = profileUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        headerParts.push(`\\href{${sanitizeHref(profileUrl)}}{\\underline{${escapeLatex(displayUrl)}}}`);
     }
     if (profile.location) headerParts.push(escapeLatex(profile.location));
 
@@ -30,8 +58,7 @@ export const generateLatex = (data) => {
 
     return `%-------------------------
 % Resume in Latex
-% Author : Jake Gutierrez
-% Based off of: https://github.com/sb2nov/resume
+% Adapted from: https://github.com/sb2nov/resume
 % License : MIT
 %------------------------
 

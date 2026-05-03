@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Resume Optimizer">
+  <rect width="64" height="64" rx="8" fill="#F9F5F6"/>
+  <path d="M18 12h22l8 8v32H18z" fill="#F8E8EE" stroke="#3f3138" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M40 12v10h10" fill="#FDCEDF" stroke="#3f3138" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M24 30h16M24 38h16M24 46h10" stroke="#3f3138" stroke-width="3" stroke-linecap="round"/>
+</svg>

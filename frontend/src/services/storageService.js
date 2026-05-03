@@ -12,7 +12,7 @@ class StorageService {
     constructor() {
         this.prefix = STORAGE_PREFIX;
         this.listeners = [];
-        this.checkAvailability();
+        this.available = this.checkAvailability();
     }
 
     /**
@@ -41,12 +41,14 @@ class StorageService {
      * Set item in localStorage
      */
     set(key, value) {
+        if (!this.available) return false;
+
         try {
             const fullKey = this.getKey(key);
             const data = JSON.stringify(value);
 
             // Check size
-            if (this.willExceedLimit(data)) {
+            if (this.willExceedLimit(key, data)) {
                 throw new Error('Storage limit exceeded');
             }
 
@@ -64,12 +66,15 @@ class StorageService {
      * Get item from localStorage
      */
     get(key) {
+        if (!this.available) return null;
+
         try {
             const fullKey = this.getKey(key);
             const data = localStorage.getItem(fullKey);
             return data ? JSON.parse(data) : null;
         } catch (e) {
             console.error('Error reading from storage:', e);
+            this.remove(key);
             return null;
         }
     }
@@ -78,6 +83,8 @@ class StorageService {
      * Remove item from localStorage
      */
     remove(key) {
+        if (!this.available) return false;
+
         try {
             const fullKey = this.getKey(key);
             localStorage.removeItem(fullKey);
@@ -93,6 +100,8 @@ class StorageService {
      * Clear all app data
      */
     clearAll() {
+        if (!this.available) return false;
+
         try {
             const keys = Object.keys(localStorage).filter(k => k.startsWith(this.prefix));
             keys.forEach(key => localStorage.removeItem(key));
@@ -107,13 +116,24 @@ class StorageService {
     /**
      * Get current storage usage
      */
-    getStorageUsage() {
+    getStorageUsage(excludeKey = null) {
+        if (!this.available) {
+            return {
+                used: 0,
+                max: MAX_STORAGE_SIZE,
+                percentage: 0,
+                isNearLimit: false
+            };
+        }
+
+        const excludedFullKey = excludeKey ? this.getKey(excludeKey) : null;
         let total = 0;
-        for (let key in localStorage) {
-            if (key.startsWith(this.prefix)) {
+        Object.keys(localStorage).forEach(key => {
+            if (key !== excludedFullKey && key.startsWith(this.prefix)) {
                 total += localStorage[key].length + key.length;
             }
-        }
+        });
+
         return {
             used: total,
             max: MAX_STORAGE_SIZE,
@@ -125,8 +145,8 @@ class StorageService {
     /**
      * Check if adding data will exceed limit
      */
-    willExceedLimit(newData) {
-        const current = this.getStorageUsage();
+    willExceedLimit(key, newData) {
+        const current = this.getStorageUsage(key);
         return (current.used + newData.length) > MAX_STORAGE_SIZE;
     }
 
@@ -134,13 +154,15 @@ class StorageService {
      * Export all data as JSON
      */
     exportAll() {
+        if (!this.available) return false;
+
         const allData = {};
-        for (let key in localStorage) {
+        Object.keys(localStorage).forEach(key => {
             if (key.startsWith(this.prefix)) {
                 const shortKey = key.replace(this.prefix, '');
                 allData[shortKey] = this.get(shortKey);
             }
-        }
+        });
 
         const blob = new Blob([JSON.stringify(allData, null, 2)], {
             type: 'application/json'
@@ -161,11 +183,17 @@ class StorageService {
      * Import data from JSON
      */
     importData(jsonData) {
+        if (!this.available) return false;
+
         try {
             const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-            for (let key in data) {
-                this.set(key, data[key]);
+            if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                throw new Error('Imported data must be a JSON object');
             }
+
+            Object.keys(data).forEach(key => {
+                this.set(key, data[key]);
+            });
             return true;
         } catch (e) {
             console.error('Error importing data:', e);
@@ -177,6 +205,8 @@ class StorageService {
      * Update last modified timestamp
      */
     updateLastModified() {
+        if (!this.available) return;
+
         const timestamp = new Date().toISOString();
         localStorage.setItem(this.getKey('last_modified'), timestamp);
     }
@@ -185,6 +215,8 @@ class StorageService {
      * Get last modified timestamp
      */
     getLastModified() {
+        if (!this.available) return null;
+
         return localStorage.getItem(this.getKey('last_modified'));
     }
 
@@ -192,14 +224,25 @@ class StorageService {
      * Add storage listener
      */
     addListener(callback) {
+        if (typeof callback !== 'function') return () => {};
+
         this.listeners.push(callback);
+        return () => {
+            this.listeners = this.listeners.filter(listener => listener !== callback);
+        };
     }
 
     /**
      * Notify all listeners
      */
     notifyListeners(action, key, value) {
-        this.listeners.forEach(cb => cb({ action, key, value }));
+        this.listeners.forEach(cb => {
+            try {
+                cb({ action, key, value });
+            } catch (e) {
+                console.error('Storage listener failed:', e);
+            }
+        });
     }
 
     /**

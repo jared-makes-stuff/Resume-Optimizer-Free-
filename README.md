@@ -1,87 +1,69 @@
-# LinkedIn Profile Optimizer and Resume Generator
+# LinkedIn Profile Optimizer
 
-## Project Overview
+A client-side React app that parses a LinkedIn profile PDF, lets you clean up the extracted profile data, and generates an ATS-friendly LaTeX resume plus a job-tailoring prompt.
 
-The LinkedIn Profile Optimizer is a robust, client-side web application designed to help professionals transform their exported LinkedIn Profile PDFs into fully customizable, highly optimized profiles. It extracts the raw data, allows for extensive local editing, and ultimately generates a professionally formatted LaTeX resume. It also interfaces with advanced generative features, such as generating tailored prompts to fine-tune your resume bullet points.
+- Portfolio: https://www.jared-makes-stuff.com/
+- Repository: https://github.com/jared-makes-stuff/Resume-Optimizer-Free-
 
-The core goal of this project is to provide users full sovereignty over their professional data. There is no backend database persisting user information; all parsing and modifications process securely within the browser and persist locally via browser storage.
+## Features
 
-## Key Features
+- Local LinkedIn PDF parsing in the browser with PDF.js.
+- Editable profile sections for basic info, experience, education, projects, organizations, skills, and raw JSON.
+- LaTeX resume generation with escaped user content for safer compilation.
+- Job description matcher that creates a copyable LLM prompt without sending data to a backend.
+- Rose theme using `#F9F5F6`, `#F8E8EE`, `#FDCEDF`, and `#F2BED1` with Work Sans.
 
-1. **Local PDF Parsing**
-   - The application ingests standard LinkedIn Profile data exports (in PDF format).
-   - Utilizing advanced client-side PDF parsing mechanisms, it systematically traverses the document to extract structured sections including professional experience, education, and detailed project participation.
+## Privacy Model
 
-2. **Interactive Profile Editor**
-   - Once data is extracted, it is loaded into a comprehensive Profile Editor.
-   - Users can dynamically add, remove, and refine their experiences and educational background.
-   - For users who prefer a more technical approach, there is an integrated JSON viewer and editor to manipulate the internal data structure directly.
+This project is a static frontend. Uploaded PDFs are parsed locally in the browser, profile data is stored in `localStorage`, and no backend API is required for the main workflow.
 
-3. **LaTeX Resume Generation**
-   - Based on the refined profile data, the application generates a complete LaTeX document.
-   - The generated LaTeX code adheres to professional typesetting standards and can be directly compiled in any popular LaTeX environment (such as Overleaf or local TeX installations) to produce a flawless, ATS-friendly PDF resume.
+Because resumes contain personal data, avoid pasting real profile data into issue reports or screenshots unless you intentionally redact it first.
 
-4. **Job Matching and Prompt Engineering**
-   - The application provides a suite to cross-reference the generated resume with potential job descriptions.
-   - It outputs tailored prompts that users can input into Large Language Models to receive specialized advice, cover letters, and keyword optimizations.
+## Setup
 
-5. **Theme Support**
-   - The interface features seamless switching between light and dark modes, integrated at the root level for an optimal reading and working experience across different system preferences.
+Requirements:
 
-## Architecture and Build
+- Node.js 20.19+ or 22.12+ for Vite 7.
+- npm.
 
-This application is built as a Single Page Application (SPA), emphasizing modern frontend development practices.
+Install and run:
 
-### Core Technology Stack
-- **React 18**: Serves as the fundamental declarative view layer.
-- **Vite**: The build tool and development server, chosen for its exceptional module replacement speed and optimized production bundling.
-- **Tailwind CSS 4**: Used for rapid, utility-first styling. The configuration avoids bulky runtime evaluation by resolving styles during the build process.
-- **Framer Motion**: Integrated to provide fluid, high-performance interface animations and layout transitions.
-- **Radix UI**: Provides the foundational, accessible, and unstyled primitives for complex interactive components (such as Tabs and Dialogs).
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-### Client-Side Parsing
-- **PDF.js (pdfjs-dist)**: Handles the binary reading of the uploaded LinkedIn PDF export. The application maps specific text nodes to infer the structural layout of the user's profile.
+The dev server usually starts at `http://localhost:5173`.
 
-### State Management
-- React context and local component state handle the momentary modifications during the session.
-- `localStorage` is implemented to serialize the complex object structure, ensuring that the profile data persists securely across browser sessions without needing external authentication or databases.
+## Environment
 
-## Local Development Setup
+The app does not require secrets. Use `.env.example` as the reference for optional public Vite values:
 
-To establish a local development environment, ensure you have Node.js installed on your system.
+```bash
+VITE_APP_NAME=Resume Optimizer
+VITE_APP_VERSION=1.0.0
+```
 
-1. **Clone the Repository**
-   Download the project structure to your local machine.
+Do not commit `.env` files. They are ignored by Git.
 
-2. **Install Dependencies**
-   Navigate to the `frontend` directory (where the application core resides) and install the necessary Node modules.
-   ```bash
-   cd frontend
-   npm install
-   ```
+## Checks
 
-3. **Launch the Development Server**
-   Initiate the Vite development server to view the application in the browser.
-   ```bash
-   npm run dev
-   ```
-   The application will become accessible, typically at `http://localhost:5173`.
+Run these before shipping changes:
 
-4. **Production Build**
-   To prepare the application for deployment, generate the optimized, static assets.
-   ```bash
-   npm run build
-   ```
-   The output artifacts will be available in the `dist` directory, ready to be served by any static file hosting service.
+```bash
+cd frontend
+npm run lint
+npm run build
+npm audit
+```
+
+There is currently no automated test suite configured.
 
 ## Project Structure
 
-- `frontend/src/`
-  - `components/`: Contains the modular UI building blocks (Profile Editor, Resume Generator).
-  - `pages/`: Houses the top-level route components (Landing Page).
-  - `services/`: Encapsulates business logic, such as the PDF parsing algorithms and local storage adapters.
-  - `lib/`: Provides strictly typed utilities and formatting helpers (such as the LaTeX generation logic).
-
-## Privacy and Security Notes
-
-Because the primary input involves sensitive personal information (a user's full work history and educational timeline), this application explicitly restricts all data processing to the client side. There are no API calls offloading PDF text to external servers for initial parsing. Security is handled inherently by containing the execution context strictly to the immediate browser process.
+- `frontend/src/pages/` - top-level page views.
+- `frontend/src/components/` - reusable UI and workflow components.
+- `frontend/src/services/` - local storage and PDF parsing services.
+- `frontend/src/lib/` - resume generation and shared utilities.
+- `frontend/public/` - static assets copied into the production build.

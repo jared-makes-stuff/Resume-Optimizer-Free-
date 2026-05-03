@@ -13,12 +13,28 @@ import { Organizations } from './Organizations';
 import { Skills } from './Skills';
 import { JsonEditor } from './JsonEditor';
 
+const normalizeProfileData = (data = {}) => {
+    const source = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+
+    return {
+        ...source,
+        profile: source.profile && typeof source.profile === 'object' ? source.profile : { name: 'Unknown Name' },
+        experience: Array.isArray(source.experience) ? source.experience : [],
+        education: Array.isArray(source.education) ? source.education : [],
+        skills: Array.isArray(source.skills) ? source.skills : [],
+        certifications: Array.isArray(source.certifications) ? source.certifications : [],
+        projects: Array.isArray(source.projects) ? source.projects : [],
+        organizations: Array.isArray(source.organizations) ? source.organizations : [],
+        importedAt: source.importedAt || new Date().toISOString(),
+    };
+};
+
 export function ProfileEditor({ data, onDataChange }) {
     const [viewMode, setViewMode] = useState('cards');
-    const [profileData, setProfileData] = useState(data);
+    const [profileData, setProfileData] = useState(() => normalizeProfileData(data));
 
     useEffect(() => {
-        setProfileData(data);
+        setProfileData(normalizeProfileData(data));
     }, [data]);
 
     const updateProfile = (field, value) => {
@@ -31,7 +47,7 @@ export function ProfileEditor({ data, onDataChange }) {
     };
 
     const updateExperience = (index, field, value) => {
-        const newExperience = [...profileData.experience];
+        const newExperience = [...(profileData.experience || [])];
         newExperience[index] = { ...newExperience[index], [field]: value };
         const newData = { ...profileData, experience: newExperience };
         setProfileData(newData);
@@ -60,7 +76,7 @@ export function ProfileEditor({ data, onDataChange }) {
     };
 
     const updateEducation = (index, field, value) => {
-        const newEducation = [...profileData.education];
+        const newEducation = [...(profileData.education || [])];
         newEducation[index] = { ...newEducation[index], [field]: value };
         const newData = { ...profileData, education: newEducation };
         setProfileData(newData);
@@ -177,8 +193,9 @@ export function ProfileEditor({ data, onDataChange }) {
                         <JsonEditor
                             initialData={profileData}
                             onSave={(newData) => {
-                                setProfileData(newData);
-                                if (onDataChange) onDataChange(newData);
+                                const normalizedData = normalizeProfileData(newData);
+                                setProfileData(normalizedData);
+                                if (onDataChange) onDataChange(normalizedData);
                                 toast.success('Profile updated from JSON!');
                             }}
                         />

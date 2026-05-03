@@ -19,12 +19,9 @@
   "plugins": ["react", "react-refresh"],
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "react/prop-types": "warn",
-    "no-unused-vars": "warn",
-    "react-refresh/only-export-components": [
-      "warn",
-      { "allowConstantExport": true }
-    ]
+    "react/prop-types": "off",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "react-refresh/only-export-components": "off"
   },
   "settings": {
     "react": {

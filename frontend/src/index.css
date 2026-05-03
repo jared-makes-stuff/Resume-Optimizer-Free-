@@ -1,28 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap");
 @import "tailwindcss";
 
-/* Design Tokens - Black & White Theme */
+/* Design Tokens - Work Sans Rose Theme */
 @theme {
-  /* Colors  */
-  --color-background: oklch(100% 0 0);
-  --color-foreground: oklch(0% 0 0);
-  --color-card: oklch(100% 0 0);
-  --color-card-foreground: oklch(0% 0 0);
-  --color-muted: oklch(96% 0 0);
-  --color-muted-foreground: oklch(45% 0 0);
-  --color-border: oklch(90% 0 0);
-  --color-input: oklch(95% 0 0);
-  --color-input-background: oklch(98% 0 0);
-  --color-primary: oklch(0% 0 0);
-  --color-primary-foreground: oklch(100% 0 0);
-  --color-ring: oklch(0% 0 0);
-  --color-destructive: oklch(50% 0.2 0);
-  --color-destructive-foreground: oklch(100% 0 0);
+  /* Colors */
+  --color-background: #F9F5F6;
+  --color-foreground: #3f3138;
+  --color-card: #F8E8EE;
+  --color-card-foreground: #3f3138;
+  --color-muted: #FDCEDF;
+  --color-muted-foreground: #6f5862;
+  --color-border: #F2BED1;
+  --color-input: #F2BED1;
+  --color-input-background: #F9F5F6;
+  --color-primary: #F2BED1;
+  --color-primary-foreground: #3f3138;
+  --color-ring: #d87ea2;
+  --color-destructive: #b42345;
+  --color-destructive-foreground: #ffffff;
 
   /* Radius */
   --radius: 0.5rem;
 
   /* Font Families */
-  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   /* Spacing */
@@ -44,12 +45,15 @@
   --text-4xl--line-height: calc(2.5 / 2.25);
 
   /* Font Weights */
+  --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
+  --font-weight-semibold: 600;
 
   /* Border Radius */
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.5rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.5rem;
+  --radius-3xl: 0.5rem;
 
   /* Transitions */
   --default-transition-duration: 0.15s;
@@ -58,18 +62,18 @@
 
 /* Dark Mode */
 .dark {
-  --color-background: oklch(0% 0 0);
-  --color-foreground: oklch(100% 0 0);
-  --color-card: oklch(10% 0 0);
-  --color-card-foreground: oklch(100% 0 0);
-  --color-muted: oklch(15% 0 0);
-  --color-muted-foreground: oklch(65% 0 0);
-  --color-border: oklch(20% 0 0);
-  --color-input: oklch(15% 0 0);
-  --color-input-background: oklch(8% 0 0);
-  --color-primary: oklch(100% 0 0);
-  --color-primary-foreground: oklch(0% 0 0);
-  --color-ring: oklch(100% 0 0);
+  --color-background: #3f3138;
+  --color-foreground: #F9F5F6;
+  --color-card: #513f48;
+  --color-card-foreground: #F9F5F6;
+  --color-muted: #6d505c;
+  --color-muted-foreground: #F8E8EE;
+  --color-border: #9d6d82;
+  --color-input: #9d6d82;
+  --color-input-background: #513f48;
+  --color-primary: #F2BED1;
+  --color-primary-foreground: #3f3138;
+  --color-ring: #FDCEDF;
 }
 
 /* Base Styles */
@@ -81,6 +85,7 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

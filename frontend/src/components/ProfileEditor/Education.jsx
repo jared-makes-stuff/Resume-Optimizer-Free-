@@ -6,7 +6,7 @@ import { Label } from '../ui/label';
 import { Copy, Trash2, Plus } from 'lucide-react';
 import { formatLabel, handleCopy } from './utils';
 
-export function Education({ education, updateEducation, addItem, removeItem }) {
+export function Education({ education = [], updateEducation, addItem, removeItem }) {
     return (
         <motion.div
             initial={{ y: 20, opacity: 0 }}

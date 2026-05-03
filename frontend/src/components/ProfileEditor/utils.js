@@ -10,6 +10,13 @@ export const formatLabel = (key) => {
 };
 
 export const handleCopy = (text, label) => {
-  navigator.clipboard.writeText(text);
-  toast.success(`${label} copied to clipboard!`);
+  if (!navigator.clipboard) {
+    toast.error('Clipboard is not available in this browser.');
+    return;
+  }
+
+  navigator.clipboard
+    .writeText(String(text ?? ''))
+    .then(() => toast.success(`${label} copied to clipboard!`))
+    .catch(() => toast.error(`Unable to copy ${label.toLowerCase()}.`));
 };

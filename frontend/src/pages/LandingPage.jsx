@@ -4,14 +4,41 @@ import { motion } from 'framer-motion';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import linkedinPdfParser from '../services/linkedinPdfParser';
+import { toast } from 'sonner';
+
+const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
+
+const validatePdfFile = (file) => {
+  if (!file) {
+    return 'Please choose a PDF file.';
+  }
+
+  const hasPdfExtension = file.name.toLowerCase().endsWith('.pdf');
+  const hasPdfType = file.type === 'application/pdf' || file.type === '';
+
+  if (!hasPdfExtension || !hasPdfType) {
+    return 'Please upload a valid PDF file.';
+  }
+
+  if (file.size > MAX_PDF_SIZE_BYTES) {
+    return 'Please upload a PDF smaller than 15 MB.';
+  }
+
+  return null;
+};
 
 export function LandingPage({ onFileUpload }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFile = useCallback(async (file) => {
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Please upload a valid PDF file');
+    const validationError = validatePdfFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    if (isProcessing) {
       return;
     }
 
@@ -21,11 +48,11 @@ export function LandingPage({ onFileUpload }) {
       onFileUpload(data);
     } catch (error) {
       console.error('Error parsing file:', error);
-      alert(`Error parsing the LinkedIn PDF: ${error.message}`);
+      toast.error(error?.message ? `Error parsing PDF: ${error.message}` : 'Unable to parse this PDF.');
     } finally {
       setIsProcessing(false);
     }
-  }, [onFileUpload]);
+  }, [isProcessing, onFileUpload]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
@@ -48,6 +75,8 @@ export function LandingPage({ onFileUpload }) {
   }, []);
 
   const handleClick = () => {
+    if (isProcessing) return;
+
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.pdf';
@@ -60,8 +89,15 @@ export function LandingPage({ onFileUpload }) {
     input.click();
   };
 
+  const handleUploadKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background text-foreground">
+    <div className="min-h-screen flex items-center justify-center bg-background p-6 pt-24 text-foreground">
       <div className="max-w-4xl w-full space-y-8">
         {/* Title */}
         <motion.div
@@ -70,7 +106,7 @@ export function LandingPage({ onFileUpload }) {
           transition={{ duration: 0.5 }}
           className="text-center space-y-2"
         >
-          <h1 className="text-4xl font-bold tracking-tight">LinkedIn Profile Optimizer</h1>
+          <h1 className="text-4xl font-semibold tracking-tight">LinkedIn Profile Optimizer</h1>
           <p className="text-muted-foreground text-lg">
             Transform your LinkedIn PDF into optimized profiles and resumes
           </p>
@@ -87,10 +123,15 @@ export function LandingPage({ onFileUpload }) {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onClick={handleClick}
+            onKeyDown={handleUploadKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-busy={isProcessing}
             className={`
               relative overflow-hidden rounded-3xl p-12 cursor-pointer
               transition-all duration-300 hover:shadow-xl border-dashed border-2
-              ${isDragging ? 'border-primary scale-[1.02] bg-muted/50' : 'border-muted'}
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+              ${isDragging ? 'border-foreground scale-[1.02] bg-muted/50' : 'border-muted'}
               ${isProcessing ? 'pointer-events-none opacity-50' : ''}
             `}
           >
@@ -134,8 +175,8 @@ export function LandingPage({ onFileUpload }) {
           <Card className="rounded-3xl p-8 bg-muted/30">
             <div className="flex gap-4">
               <div className="flex-shrink-0">
-                <div className="rounded-full bg-primary/10 p-3">
-                  <Info className="h-6 w-6 text-primary" />
+                <div className="rounded-full bg-muted p-3">
+                  <Info className="h-6 w-6 text-foreground" />
                 </div>
               </div>
               <div className="space-y-4">
@@ -145,7 +186,7 @@ export function LandingPage({ onFileUpload }) {
                     Click <span className="font-medium text-foreground">Go to LinkedIn Profile</span> (your own profile)
                   </li>
                   <li>
-                    Click <span className="font-medium text-foreground">'More'</span> (or 'Resource') button near your profile picture, then select <span className="font-medium text-foreground">'Save to PDF'</span>
+                    Click <span className="font-medium text-foreground">&apos;More&apos;</span> (or &apos;Resource&apos;) button near your profile picture, then select <span className="font-medium text-foreground">&apos;Save to PDF&apos;</span>
                   </li>
                   <li>
                     Upload the downloaded PDF file here

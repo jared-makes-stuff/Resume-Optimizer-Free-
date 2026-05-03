@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Copy } from 'lucide-react';
@@ -8,9 +8,17 @@ export function JsonEditor({ initialData, onSave }) {
     const [jsonText, setJsonText] = useState(JSON.stringify(initialData, null, 2));
     const [error, setError] = useState(null);
 
+    useEffect(() => {
+        setJsonText(JSON.stringify(initialData, null, 2));
+        setError(null);
+    }, [initialData]);
+
     const handleSave = () => {
         try {
             const parsed = JSON.parse(jsonText);
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                throw new Error('Profile JSON must be an object');
+            }
             onSave(parsed);
             setError(null);
         } catch (e) {
@@ -19,9 +27,13 @@ export function JsonEditor({ initialData, onSave }) {
         }
     };
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(jsonText);
-        toast.success('JSON copied to clipboard!');
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(jsonText);
+            toast.success('JSON copied to clipboard!');
+        } catch {
+            toast.error('Unable to copy JSON.');
+        }
     };
 
     return (
@@ -48,7 +60,7 @@ export function JsonEditor({ initialData, onSave }) {
             />
 
             <p className="text-sm text-muted-foreground">
-                You can edit this JSON directly. Paste content from an LLM here and click "Apply Changes" to update your profile.
+                You can edit this JSON directly. Paste content from an LLM here and click &quot;Apply Changes&quot; to update your profile.
             </p>
         </div>
     );

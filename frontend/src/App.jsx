@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './components/ui/button';
 import LandingPage from './pages/LandingPage';
 import { ProfileEditor } from './components/ProfileEditor';
 import { ResumeGenerator } from './components/ResumeGenerator';
 import { JobMatcher } from './components/JobMatcher';
+import { ProjectLinks } from './components/ProjectLinks';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Toaster } from './components/ui/sonner';
 import storageService from './services/storageService';
-import { useTheme } from 'next-themes';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -68,7 +68,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
       </div>
     );
   }
@@ -77,18 +77,21 @@ export default function App() {
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 font-sans">
       <Toaster />
       
-      {/* Header with Theme Toggle */}
+      {/* Header */}
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="fixed top-0 right-0 p-6 z-50 pointer-events-none"
+        className="fixed inset-x-0 top-0 z-50 p-4 pointer-events-none"
       >
-        <div className="pointer-events-auto">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-end gap-2 pointer-events-auto">
+          <ProjectLinks />
           <Button
             variant="outline"
             size="icon"
             onClick={() => setIsDark(!isDark)}
-            className="rounded-full w-10 h-10 bg-background/50 backdrop-blur-sm shadow-sm"
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            className="bg-background/85 backdrop-blur shadow-sm"
           >
             <AnimatePresence mode="wait">
               {isDark ? (
@@ -136,15 +139,15 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="container mx-auto px-4 py-8 max-w-7xl"
+            className="container mx-auto max-w-7xl px-4 pb-8 pt-24"
           >
             <div className="mb-6">
               <Button
                 variant="outline"
                 onClick={handleClearData}
-                className="rounded-full"
               >
-                ← Back to Upload (Clear Data)
+                <ArrowLeft className="h-4 w-4" />
+                Back to Upload
               </Button>
             </div>
 

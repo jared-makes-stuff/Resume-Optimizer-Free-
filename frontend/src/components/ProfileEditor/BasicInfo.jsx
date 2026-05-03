@@ -7,7 +7,7 @@ import { Label } from '../ui/label';
 import { Copy } from 'lucide-react';
 import { formatLabel, handleCopy } from './utils';
 
-export function BasicInfo({ profile, updateProfile }) {
+export function BasicInfo({ profile = {}, updateProfile }) {
     return (
         <motion.div
             initial={{ y: 20, opacity: 0 }}

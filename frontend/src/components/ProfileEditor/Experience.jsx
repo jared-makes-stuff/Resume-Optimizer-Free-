@@ -7,7 +7,7 @@ import { Label } from '../ui/label';
 import { Copy, Trash2, Plus } from 'lucide-react';
 import { formatLabel, handleCopy } from './utils';
 
-export function Experience({ experience, updateExperience, addItem, removeItem }) {
+export function Experience({ experience = [], updateExperience, addItem, removeItem }) {
     return (
         <motion.div
             initial={{ y: 20, opacity: 0 }}

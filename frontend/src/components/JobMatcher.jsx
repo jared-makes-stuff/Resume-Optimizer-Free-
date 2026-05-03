@@ -7,13 +7,20 @@ import { Label } from './ui/label';
 import { Copy, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function JobMatcher({ resume }) {
+const MAX_JOB_DESCRIPTION_LENGTH = 20000;
+
+export function JobMatcher({ resume = '' }) {
   const [jobDescription, setJobDescription] = useState('');
   const [generatedPrompt, setGeneratedPrompt] = useState('');
 
   const generatePrompt = () => {
     if (!jobDescription.trim()) {
       toast.error('Please enter a job description first');
+      return;
+    }
+
+    if (jobDescription.length > MAX_JOB_DESCRIPTION_LENGTH) {
+      toast.error('Please keep the job description under 20,000 characters.');
       return;
     }
 
@@ -49,14 +56,22 @@ Please provide the modified LaTeX resume code that is optimized for this specifi
     toast.success('Prompt generated! Copy it to use with ChatGPT or Claude.');
   };
 
-  const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(generatedPrompt);
-    toast.success('Prompt copied to clipboard!');
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedPrompt);
+      toast.success('Prompt copied to clipboard!');
+    } catch {
+      toast.error('Unable to copy prompt.');
+    }
   };
 
-  const handleCopyJobDescription = () => {
-    navigator.clipboard.writeText(jobDescription);
-    toast.success('Job description copied to clipboard!');
+  const handleCopyJobDescription = async () => {
+    try {
+      await navigator.clipboard.writeText(jobDescription);
+      toast.success('Job description copied to clipboard!');
+    } catch {
+      toast.error('Unable to copy job description.');
+    }
   };
 
   return (
@@ -157,11 +172,11 @@ Please provide the modified LaTeX resume code that is optimized for this specifi
             <h4 className="font-medium">How to Use the Generated Prompt</h4>
             <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
               <li>Paste the job description in the text area above</li>
-              <li>Click "Generate AI Optimization Prompt"</li>
+              <li>Click &quot;Generate AI Optimization Prompt&quot;</li>
               <li>Copy the generated prompt</li>
               <li>Open ChatGPT, Claude, or your preferred AI assistant</li>
               <li>Paste the prompt and let the AI optimize your resume</li>
-              <li>Review the AI's suggestions and make any final adjustments</li>
+              <li>Review the AI&apos;s suggestions and make any final adjustments</li>
               <li>Compile the modified LaTeX code in Overleaf or your LaTeX editor</li>
             </ol>
             <p className="text-sm text-muted-foreground pt-2">
